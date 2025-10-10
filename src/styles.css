@@ -1,0 +1,194 @@
+@import 'tailwindcss';
+
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+body {
+  @apply m-0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Make dark mode the default */
+html {
+  color-scheme: dark;
+}
+
+code {
+  font-family:
+    source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+:root {
+  /* Light mode with YUM brand colors */
+  --background: oklch(0.98 0.005 280);
+  --foreground: oklch(0.15 0.01 280);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0.01 280);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0.01 280);
+  /* YUM primary: cyan from logo #00F3FA */
+  --primary: oklch(0.85 0.2 190);
+  --primary-foreground: oklch(0.1 0.01 280);
+  --secondary: oklch(0.96 0.01 280);
+  --secondary-foreground: oklch(0.15 0.01 280);
+  --muted: oklch(0.96 0.01 280);
+  --muted-foreground: oklch(0.55 0.02 280);
+  --accent: oklch(0.96 0.01 280);
+  --accent-foreground: oklch(0.15 0.01 280);
+  --destructive: oklch(0.65 0.2 25);
+  --destructive-foreground: oklch(0.98 0.005 25);
+  --border: oklch(0.92 0.005 280);
+  --input: oklch(0.92 0.005 280);
+  --ring: oklch(0.85 0.2 190);
+  /* YUM gradient colors for charts */
+  --chart-1: oklch(0.85 0.2 190); /* cyan #00F3FA */
+  --chart-2: oklch(0.6 0.25 290); /* purple #6C40DE */
+  --chart-3: oklch(0.7 0.15 200);
+  --chart-4: oklch(0.8 0.2 310);
+  --chart-5: oklch(0.75 0.18 250);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.15 0.01 280);
+  --sidebar-primary: oklch(0.85 0.2 190);
+  --sidebar-primary-foreground: oklch(0.1 0.01 280);
+  --sidebar-accent: oklch(0.96 0.01 280);
+  --sidebar-accent-foreground: oklch(0.15 0.01 280);
+  --sidebar-border: oklch(0.92 0.005 280);
+  --sidebar-ring: oklch(0.85 0.2 190);
+}
+
+.dark {
+  /* Dark mode with YUM brand colors */
+  --background: oklch(0.08 0.01 280);
+  --foreground: oklch(0.95 0.005 280);
+  --card: oklch(0.12 0.01 280);
+  --card-foreground: oklch(0.95 0.005 280);
+  --popover: oklch(0.12 0.01 280);
+  --popover-foreground: oklch(0.95 0.005 280);
+  /* YUM primary: bright cyan from logo */
+  --primary: oklch(0.9 0.25 190);
+  --primary-foreground: oklch(0.08 0.01 280);
+  /* YUM secondary: purple from logo #6C40DE */
+  --secondary: oklch(0.25 0.015 280);
+  --secondary-foreground: oklch(0.95 0.005 280);
+  --muted: oklch(0.25 0.015 280);
+  --muted-foreground: oklch(0.7 0.02 280);
+  --accent: oklch(0.25 0.015 280);
+  --accent-foreground: oklch(0.95 0.005 280);
+  --destructive: oklch(0.6 0.2 25);
+  --destructive-foreground: oklch(0.95 0.005 25);
+  --border: oklch(0.25 0.015 280);
+  --input: oklch(0.25 0.015 280);
+  --ring: oklch(0.9 0.25 190);
+  /* YUM gradient colors for dark mode charts */
+  --chart-1: oklch(0.9 0.25 190); /* bright cyan */
+  --chart-2: oklch(0.65 0.3 290); /* bright purple */
+  --chart-3: oklch(0.75 0.2 200);
+  --chart-4: oklch(0.8 0.25 310);
+  --chart-5: oklch(0.85 0.2 250);
+  --sidebar: oklch(0.15 0.01 280);
+  --sidebar-foreground: oklch(0.95 0.005 280);
+  --sidebar-primary: oklch(0.9 0.25 190);
+  --sidebar-primary-foreground: oklch(0.08 0.01 280);
+  --sidebar-accent: oklch(0.25 0.015 280);
+  --sidebar-accent-foreground: oklch(0.95 0.005 280);
+  --sidebar-border: oklch(0.25 0.015 280);
+  --sidebar-ring: oklch(0.9 0.25 190);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* Add subtle YUM gradient background */
+    background: linear-gradient(
+      135deg,
+      hsl(var(--background)) 0%,
+      hsl(var(--background)) 70%,
+      oklch(0.1 0.02 190 / 0.05) 100%
+    );
+    min-height: 100vh;
+  }
+}
+
+/* YUM brand enhancements */
+@layer utilities {
+  .yum-gradient {
+    background: linear-gradient(
+      135deg,
+      oklch(0.9 0.25 190),
+      oklch(0.65 0.3 290)
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .yum-gradient-bg {
+    background: linear-gradient(
+      135deg,
+      oklch(0.9 0.25 190),
+      oklch(0.65 0.3 290)
+    );
+  }
+
+  .yum-glow {
+    box-shadow: 0 0 20px oklch(0.9 0.25 190 / 0.3);
+  }
+
+  .yum-border {
+    border: 1px solid;
+    border-image: linear-gradient(
+        135deg,
+        oklch(0.9 0.25 190),
+        oklch(0.65 0.3 290)
+      )
+      1;
+  }
+}
