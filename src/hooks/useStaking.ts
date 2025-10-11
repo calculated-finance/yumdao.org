@@ -1,7 +1,7 @@
 import {
   ERC20_ABI,
   STAKING_ABI,
-  STAKING_CONTRACT_ADDRESS,
+  VYUM_TOKEN_ADDRESS,
   YUM_TOKEN_ADDRESS,
 } from '@/lib/contracts'
 import { formatUnits, parseUnits } from 'viem'
@@ -13,8 +13,7 @@ import {
   useWriteContract,
 } from 'wagmi'
 
-// Hook to get YUM token balance
-export function useYumBalance() {
+export function useERC20Balance(tokenAddress: `0x${string}`) {
   const { address } = useAccount()
 
   const {
@@ -23,7 +22,7 @@ export function useYumBalance() {
     isLoading,
     refetch,
   } = useReadContract({
-    address: YUM_TOKEN_ADDRESS,
+    address: tokenAddress,
     abi: ERC20_ABI,
     functionName: 'balanceOf',
     args: address ? [address] : undefined,
@@ -39,7 +38,7 @@ export function useYumBalance() {
   })
 
   const { data: decimals } = useReadContract({
-    address: YUM_TOKEN_ADDRESS,
+    address: tokenAddress,
     abi: ERC20_ABI,
     functionName: 'decimals',
   })
@@ -58,7 +57,6 @@ export function useYumBalance() {
   }
 }
 
-// Hook to get YUM token allowance for staking contract
 export function useYumAllowance() {
   const { address } = useAccount()
 
@@ -70,7 +68,7 @@ export function useYumAllowance() {
     address: YUM_TOKEN_ADDRESS,
     abi: ERC20_ABI,
     functionName: 'allowance',
-    args: address ? [address, STAKING_CONTRACT_ADDRESS] : undefined,
+    args: address ? [address, VYUM_TOKEN_ADDRESS] : undefined,
     query: {
       enabled: !!address,
     },
@@ -96,7 +94,6 @@ export function useYumAllowance() {
   }
 }
 
-// Hook to get staked YUM balance
 export function useStakedBalance() {
   const { address } = useAccount()
 
@@ -105,7 +102,7 @@ export function useStakedBalance() {
     isLoading,
     refetch,
   } = useReadContract({
-    address: STAKING_CONTRACT_ADDRESS,
+    address: VYUM_TOKEN_ADDRESS,
     abi: STAKING_ABI,
     functionName: 'getStakedAmount',
     args: address ? [address] : undefined,
@@ -134,8 +131,10 @@ export function useStakedBalance() {
   }
 }
 
-// Hook to approve YUM tokens for staking
-export function useApproveYum() {
+export function useApproveERC20(
+  tokenAddress: `0x${string}`,
+  spender: `0x${string}`,
+) {
   const { writeContract, data: hash, isPending } = useWriteContract()
 
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
@@ -144,7 +143,7 @@ export function useApproveYum() {
     })
 
   const { data: decimals } = useReadContract({
-    address: YUM_TOKEN_ADDRESS,
+    address: tokenAddress,
     abi: ERC20_ABI,
     functionName: 'decimals',
   })
@@ -155,16 +154,10 @@ export function useApproveYum() {
     const parsedAmount = parseUnits(amount, decimals as number)
 
     return writeContract({
-      address: YUM_TOKEN_ADDRESS,
+      address: tokenAddress,
       abi: ERC20_ABI,
       functionName: 'approve',
-      args: [STAKING_CONTRACT_ADDRESS, parsedAmount],
-      // Gas estimation is automatically handled by writeContract
-      // You can optionally override with specific gas settings:
-      // gas: 100000n, // Custom gas limit
-      // gasPrice: parseGwei('20'), // Custom gas price
-      // maxFeePerGas: parseGwei('20'), // EIP-1559
-      // maxPriorityFeePerGas: parseGwei('1'), // EIP-1559
+      args: [spender, parsedAmount],
     })
   }
 
@@ -177,7 +170,6 @@ export function useApproveYum() {
   }
 }
 
-// Hook to stake YUM tokens with gas estimation
 export function useStakeYum(amount?: string) {
   const { writeContract, data: hash, isPending } = useWriteContract()
   const { address } = useAccount()
@@ -193,14 +185,71 @@ export function useStakeYum(amount?: string) {
     functionName: 'decimals',
   })
 
-  // Simulate the stake transaction for the provided amount
   const parsedAmount =
     amount && decimals ? parseUnits(amount, decimals as number) : undefined
 
   const simulation = useSimulateContract({
-    address: STAKING_CONTRACT_ADDRESS,
+    address: VYUM_TOKEN_ADDRESS,
     abi: STAKING_ABI,
     functionName: 'deposit',
+    args: parsedAmount && address ? [parsedAmount, address] : undefined,
+    account: address,
+    query: {
+      enabled:
+        !!address &&
+        !!decimals &&
+        !!amount &&
+        !isNaN(Number(amount)) &&
+        Number(amount) > 0,
+    },
+  })
+
+  const stake = async (stakeAmount: string) => {
+    if (!decimals) throw new Error('Failed to get token decimals')
+    if (!address) throw new Error('No connected wallet address')
+
+    const parsedStakeAmount = parseUnits(stakeAmount, decimals as number)
+
+    return writeContract({
+      address: VYUM_TOKEN_ADDRESS,
+      abi: STAKING_ABI,
+      functionName: 'deposit',
+      args: [parsedStakeAmount, address],
+    })
+  }
+
+  return {
+    stake,
+    simulation,
+    hash,
+    isPending,
+    isConfirming,
+    isConfirmed,
+  }
+}
+
+export function useUnstakeYum(amount?: string) {
+  const { writeContract, data: hash, isPending } = useWriteContract()
+  const { address } = useAccount()
+
+  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+    useWaitForTransactionReceipt({
+      hash,
+    })
+
+  const { data: decimals } = useReadContract({
+    address: YUM_TOKEN_ADDRESS,
+    abi: ERC20_ABI,
+    functionName: 'decimals',
+  })
+
+  const parsedAmount =
+    amount && decimals ? parseUnits(amount, decimals as number) : undefined
+
+  const simulation = useSimulateContract({
+    address: VYUM_TOKEN_ADDRESS,
+    abi: STAKING_ABI,
+    functionName: 'requestRedeem',
     args: parsedAmount ? [parsedAmount] : undefined,
     account: address,
     query: {
@@ -215,36 +264,21 @@ export function useStakeYum(amount?: string) {
 
   console.log(simulation)
 
-  const stake = async (
-    stakeAmount: string,
-    customGasOptions?: {
-      gasLimit?: bigint
-      maxFeePerGas?: bigint
-      maxPriorityFeePerGas?: bigint
-    },
-  ) => {
+  const unstake = async (unstakeAmount: string) => {
     if (!decimals) throw new Error('Failed to get token decimals')
 
-    const parsedStakeAmount = parseUnits(stakeAmount, decimals as number)
+    const parsedUnstakeAmount = parseUnits(unstakeAmount, decimals as number)
 
     return writeContract({
-      address: STAKING_CONTRACT_ADDRESS,
+      address: VYUM_TOKEN_ADDRESS,
       abi: STAKING_ABI,
-      functionName: 'deposit',
-      args: [parsedStakeAmount],
-      // Apply custom gas options if provided
-      ...(customGasOptions?.gasLimit && { gas: customGasOptions.gasLimit }),
-      ...(customGasOptions?.maxFeePerGas && {
-        maxFeePerGas: customGasOptions.maxFeePerGas,
-      }),
-      ...(customGasOptions?.maxPriorityFeePerGas && {
-        maxPriorityFeePerGas: customGasOptions.maxPriorityFeePerGas,
-      }),
+      functionName: 'requestRedeem',
+      args: [parsedUnstakeAmount],
     })
   }
 
   return {
-    stake,
+    unstake,
     simulation,
     hash,
     isPending,
@@ -253,14 +287,22 @@ export function useStakeYum(amount?: string) {
   }
 }
 
-// Hook to unstake YUM tokens
-export function useUnstakeYum() {
-  const { writeContract, data: hash, isPending } = useWriteContract()
+export function useUnstakingRequests() {
+  const { address } = useAccount()
 
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
-    useWaitForTransactionReceipt({
-      hash,
-    })
+  const {
+    data: requests,
+    isLoading,
+    refetch,
+  } = useReadContract({
+    address: VYUM_TOKEN_ADDRESS,
+    abi: STAKING_ABI,
+    functionName: 'fetchRequests',
+    args: address ? [address, 0] : undefined, // 0 = pending status
+    query: {
+      enabled: !!address,
+    },
+  })
 
   const { data: decimals } = useReadContract({
     address: YUM_TOKEN_ADDRESS,
@@ -268,56 +310,56 @@ export function useUnstakeYum() {
     functionName: 'decimals',
   })
 
-  const unstake = async (amount: string) => {
-    if (!decimals) throw new Error('Failed to get token decimals')
+  const { data: cooldownPeriod } = useReadContract({
+    address: VYUM_TOKEN_ADDRESS,
+    abi: STAKING_ABI,
+    functionName: 'cooldownPeriod',
+  })
 
-    const parsedAmount = parseUnits(amount, decimals as number)
+  const formattedRequests =
+    requests && decimals && cooldownPeriod
+      ? (requests as any[]).map((request: any) => ({
+          id: request.id,
+          shares: request.shares,
+          amount: formatUnits(request.shares as bigint, decimals as number),
+          timeOfRequest: new Date(Number(request.timeOfRequest) * 1000),
+          availableAt: new Date(
+            (Number(request.timeOfRequest) + Number(cooldownPeriod)) * 1000,
+          ),
+          status: request.status,
+        }))
+      : []
 
+  return {
+    requests: formattedRequests,
+    rawRequests: requests as any[] | undefined,
+    isLoading,
+    refetch,
+  }
+}
+
+export function useCancelRequest() {
+  const { writeContract, data: hash, isPending } = useWriteContract()
+
+  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+    useWaitForTransactionReceipt({
+      hash,
+    })
+
+  const cancelRequest = async (requestId: string | number) => {
     return writeContract({
-      address: STAKING_CONTRACT_ADDRESS,
+      address: VYUM_TOKEN_ADDRESS,
       abi: STAKING_ABI,
-      functionName: 'withdraw',
-      args: [parsedAmount],
-      // Gas estimation is automatically handled by writeContract
-      // You can optionally override with specific gas settings:
-      // gas: 120000n, // Custom gas limit for unstaking
-      // maxFeePerGas: parseGwei('25'), // Custom max fee
-      // maxPriorityFeePerGas: parseGwei('1.5'), // Priority fee
+      functionName: 'cancelRequest',
+      args: [BigInt(requestId)],
     })
   }
 
   return {
-    unstake,
+    cancelRequest,
     hash,
     isPending,
     isConfirming,
     isConfirmed,
-  }
-}
-
-// Utility hook for gas estimation examples
-export function useGasEstimation() {
-  const { address } = useAccount()
-
-  // Example: Get gas estimate for a specific staking amount
-  const getStakeGasEstimate = (amount: string) => {
-    if (!address) return null
-
-    const parsedAmount = parseUnits(amount, 18) // Assuming 18 decimals
-
-    return useSimulateContract({
-      address: STAKING_CONTRACT_ADDRESS,
-      abi: STAKING_ABI,
-      functionName: 'deposit',
-      args: [parsedAmount],
-      account: address,
-      query: {
-        enabled: !!address && !!amount && !isNaN(Number(amount)),
-      },
-    })
-  }
-
-  return {
-    getStakeGasEstimate,
   }
 }

@@ -1,12 +1,10 @@
 import type { Address } from 'viem'
 
-// Contract addresses on Arbitrum
 export const YUM_TOKEN_ADDRESS: Address =
   '0x9F41b34f42058a7b74672055a5fae22c4b113Fd1'
-export const STAKING_CONTRACT_ADDRESS: Address =
+export const VYUM_TOKEN_ADDRESS: Address =
   '0x2BFDeD2599De2549e163dcFEFCD0d7f8a234Eb9e'
 
-// ERC20 ABI for YUM token (minimal interface for balance and allowance)
 export const ERC20_ABI = [
   {
     constant: true,
@@ -44,7 +42,6 @@ export const ERC20_ABI = [
   },
 ] as const
 
-// Staking contract ABI (from the context provided by user)
 export const STAKING_ABI = [
   {
     inputs: [
@@ -102,11 +99,29 @@ export const STAKING_ABI = [
         name: 'amount',
         type: 'uint256',
       },
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
     ],
     name: 'deposit',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
+  },
+  {
+    type: 'function',
+    name: 'requestRedeem',
+    inputs: [
+      {
+        name: 'amount',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   {
     inputs: [
@@ -152,5 +167,77 @@ export const STAKING_ABI = [
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
+  },
+  {
+    type: 'function',
+    name: 'cooldownPeriod',
+    inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'fetchRequests',
+    inputs: [
+      {
+        name: 'user',
+        type: 'address',
+        internalType: 'address',
+      },
+      {
+        name: 'status',
+        type: 'uint8',
+        internalType: 'uint8',
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'tuple[]',
+        internalType: 'struct YUMStaking.Request[]',
+        components: [
+          {
+            name: 'id',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+          {
+            name: 'shares',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+          {
+            name: 'timeOfRequest',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+          {
+            name: 'status',
+            type: 'uint8',
+            internalType: 'uint8',
+          },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'cancelRequest',
+    inputs: [
+      {
+        name: 'id',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
 ] as const
