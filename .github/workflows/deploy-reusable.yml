@@ -1,4 +1,4 @@
-name: 'Deploy Frontend: Reusable'
+name: 'Deploy'
 
 on:
   workflow_call:
@@ -33,6 +33,11 @@ jobs:
         with:
           node-version: '22.x'
           cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
 
       - name: Install App Dependencies
         working-directory: frontend

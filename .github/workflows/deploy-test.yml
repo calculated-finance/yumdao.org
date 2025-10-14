@@ -1,11 +1,14 @@
-name: 'Deploy Frontend: Test'
+name: 'Deploy: Test'
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   deploy:
-    name: Deploy Frontend (Test)
+    name: Deploy (Test)
     uses: ./.github/workflows/deploy-reusable.yml
     with:
       ENVIRONMENT: staging

@@ -1,11 +1,11 @@
-name: 'Deploy Frontend: Production'
+name: 'Deploy: Production'
 
 on:
   workflow_dispatch:
 
 jobs:
   deploy:
-    name: Deploy Frontend (production)
+    name: Deploy (production)
     uses: ./.github/workflows/deploy-reusable.yml
     with:
       ENVIRONMENT: production
