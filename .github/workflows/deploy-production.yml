@@ -13,4 +13,4 @@ jobs:
     uses: ./.github/workflows/deploy-reusable.yml
     with:
       ENVIRONMENT: production
-      BUCKET_DOMAIN_NAME: yumdao.zone
+      BUCKET_DOMAIN_NAME: yumdao.org
