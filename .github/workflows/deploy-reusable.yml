@@ -11,18 +11,11 @@ on:
         type: string
         required: true
         description: Domain name used for bucket name
-      AWS_ACCOUNT_ID:
-        type: string
-        description: 'AWS Account ID'
-        required: true
-    secrets:
-      OIDC_ROLE_NAME:
-        description: 'OIDC Role Name for AWS authentication'
-        required: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.ENVIRONMENT }}
     name: Deploy Infrastructure
     steps:
       - name: Checkout
@@ -48,9 +41,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ inputs.AWS_ACCOUNT_ID }}:role/${{ secrets.OIDC_ROLE_NAME }}
-          role-session-name: GitHubActions-${{ inputs.ENVIRONMENT }}
-          aws-region: ap-southeast-1
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/${{ secrets.OIDC_ROLE_NAME }}
+          role-session-name: GitHubActions-${{ vars.ENVIRONMENT }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Build App
         run: pnpm build
