@@ -1,7 +1,7 @@
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { arbitrum } from '@reown/appkit/networks'
 
-export const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
+export const projectId = '5c06da8ccdd14f20486cab1f9c13be72' // import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
 
 if (!projectId) {
   throw new Error('VITE_WALLETCONNECT_PROJECT_ID is not defined')
