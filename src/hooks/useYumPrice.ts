@@ -17,10 +17,8 @@ export interface YumCurrentPrice {
 }
 
 const fetchYumPriceHistory = async (days: TimeFrame): Promise<YumPriceData> => {
-  const baseUrl = '/api/coingecko'
-
   const response = await fetch(
-    `${baseUrl}/coins/yum/market_chart?vs_currency=usd&days=${days}`,
+    `https://pro-api.coingecko.com/api/v3/api/coingecko/coins/yum/market_chart?vs_currency=usd&days=${days}`,
   )
 
   if (!response.ok) {
@@ -31,10 +29,8 @@ const fetchYumPriceHistory = async (days: TimeFrame): Promise<YumPriceData> => {
 }
 
 const fetchYumCurrentPrice = async (): Promise<YumCurrentPrice> => {
-  const baseUrl = '/api/coingecko'
-
   const response = await fetch(
-    `${baseUrl}/simple/price?ids=yum&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true`,
+    `https://pro-api.coingecko.com/api/v3/api/coingecko/simple/price?ids=yum&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true`,
   )
 
   if (!response.ok) {
