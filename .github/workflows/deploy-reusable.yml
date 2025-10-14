@@ -22,7 +22,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest-m
+    runs-on: ubuntu-latest
     name: Deploy Infrastructure
     steps:
       - name: Checkout
