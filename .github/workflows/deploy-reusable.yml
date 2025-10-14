@@ -12,10 +12,6 @@ on:
         required: true
         description: Domain name used for bucket name
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
