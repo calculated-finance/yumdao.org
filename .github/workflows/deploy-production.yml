@@ -1,0 +1,14 @@
+name: 'Deploy Frontend: Production'
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy Frontend (production)
+    uses: ./.github/workflows/deploy-reusable.yml
+    with:
+      ENVIRONMENT: production
+      BUCKET_DOMAIN_NAME: yumdao.zone
+      OIDC_ROLE_NAME: ${{ secrets.OIDC_ROLE_NAME }}
+      AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}

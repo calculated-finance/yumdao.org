@@ -1,3 +1,4 @@
+import { StakingInfoPanel } from '@/components/StakingInfoPanel'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -6,11 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { UnstakingRequestsCard } from '@/components/UnstakingRequestsCard'
 import {
   useApproveERC20,
+  useERC20Allowance,
   useERC20Balance,
   useStakeYum,
   useUnstakeYum,
   useUnstakingRequests,
-  useYumAllowance,
 } from '@/hooks/useStaking'
 import { useToast } from '@/hooks/useToast'
 import { VYUM_TOKEN_ADDRESS, YUM_TOKEN_ADDRESS } from '@/lib/contracts'
@@ -30,19 +31,19 @@ interface UnstakeFormData {
 
 export function YumStakingForm() {
   const { isConnected, address } = useAccount()
-  const [isStaking, setIsStaking] = useState(false)
+  const [isStaking, setIsStaking] = useState(true)
   const [stakeAmount, setStakeAmount] = useState('')
   const [unstakeAmount, setUnstakeAmount] = useState('')
   const { toast } = useToast()
 
-  // Contract hooks
   const { balance: yumBalance, refetch: refetchYumBalance } =
     useERC20Balance(YUM_TOKEN_ADDRESS)
 
   const { balance: vYumBalance, refetch: refetchVyumBalance } =
     useERC20Balance(VYUM_TOKEN_ADDRESS)
 
-  const { allowance, refetch: refetchAllowance } = useYumAllowance()
+  const { allowance: stakingAllowance, refetch: refetchAllowance } =
+    useERC20Allowance(YUM_TOKEN_ADDRESS, VYUM_TOKEN_ADDRESS)
 
   const {
     approve,
@@ -124,8 +125,6 @@ export function YumStakingForm() {
     toast,
   ])
 
-  const mockEstimatedAPY = '12.5'
-
   const stakeForm = useForm({
     defaultValues: {
       amount: '',
@@ -151,7 +150,6 @@ export function YumStakingForm() {
           return
         }
 
-        // Check if user has enough balance
         if (Number(amount) > Number(yumBalance)) {
           toast({
             title: 'Insufficient Balance',
@@ -162,22 +160,19 @@ export function YumStakingForm() {
           return
         }
 
-        // Check if allowance is sufficient
-        const requiredAllowance = parseUnits(amount, 18) // Assuming 18 decimals
-        const currentAllowance = parseUnits(allowance || '0', 18)
+        const requiredAllowance = parseUnits(amount, 18)
+        const currentAllowance = parseUnits(stakingAllowance || '0', 18)
 
         if (currentAllowance < requiredAllowance) {
-          // Need to approve first
           toast({
             title: 'Approval Required',
             description: 'Approving YUM tokens for staking...',
             variant: 'default',
           })
           await approve(amount)
-          return // Wait for approval to complete before staking
+          return
         }
 
-        // Proceed with staking
         toast({
           title: 'Staking in Progress',
           description: 'Staking transaction submitted...',
@@ -186,7 +181,7 @@ export function YumStakingForm() {
 
         await stake(amount)
         stakeForm.reset()
-        setStakeAmount('') // Clear the tracked amount
+        setStakeAmount('')
       } catch (error) {
         console.error('Staking failed:', error)
         toast({
@@ -305,10 +300,12 @@ export function YumStakingForm() {
 
   return (
     <div className="space-y-6">
+      <StakingInfoPanel />
+
       <Card>
         <Tabs defaultValue="stake" className="w-full">
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
+            <CardTitle className="flex items-start justify-between">
               YUM Staking
               <div className="flex gap-1">
                 <TabsList className="bg-transparent flex gap-1">
@@ -365,24 +362,19 @@ export function YumStakingForm() {
                 className="space-y-4"
               >
                 <div className="bg-muted/50 rounded-lg p-4">
-                  <div className="flex justify-between items-center mb-2">
+                  <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">
                       Available Balance
                     </span>
-                    <span className="font-semibold">
-                      {Number(yumBalance).toLocaleString(undefined, {
-                        maximumFractionDigits: 6,
-                      })}{' '}
-                      YUM
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">
-                      Estimated APY
-                    </span>
-                    <span className="font-semibold text-green-600">
-                      {mockEstimatedAPY}%
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <img src="yum.svg" alt="YUM Icon" className="h-5 w-5" />
+                      <span className="font-semibold">
+                        {Number(yumBalance).toLocaleString(undefined, {
+                          maximumFractionDigits: 6,
+                        })}{' '}
+                        YUM
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -458,7 +450,7 @@ export function YumStakingForm() {
                       : stakeSimulation?.isLoading &&
                           !!stakeAmount &&
                           stakeAmount !== '0'
-                        ? 'Validating...'
+                        ? 'Simulating Transaction...'
                         : !!stakeAmount &&
                             stakeAmount !== '0' &&
                             stakeSimulation?.error
@@ -478,24 +470,19 @@ export function YumStakingForm() {
                 className="space-y-4"
               >
                 <div className="bg-muted/50 rounded-lg p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-muted-foreground">
-                      Available Balance
-                    </span>
-                    <span className="font-semibold">
-                      {Number(vYumBalance).toLocaleString(undefined, {
-                        maximumFractionDigits: 6,
-                      })}{' '}
-                      vYUM
-                    </span>
-                  </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">
-                      Estimated APY
+                      Staked Balance
                     </span>
-                    <span className="font-semibold text-green-600">
-                      {mockEstimatedAPY}%
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <img src="vyum.svg" alt="YUM Icon" className="h-5 w-5" />
+                      <span className="font-semibold">
+                        {Number(unstakeableAmount).toLocaleString(undefined, {
+                          maximumFractionDigits: 6,
+                        })}{' '}
+                        vYUM
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -568,7 +555,7 @@ export function YumStakingForm() {
                     : unstakeSimulation?.isLoading &&
                         !!unstakeAmount &&
                         unstakeAmount !== '0'
-                      ? 'Validating...'
+                      ? 'Simulating Transaction...'
                       : !!unstakeAmount &&
                           unstakeAmount !== '0' &&
                           unstakeSimulation?.error

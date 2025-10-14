@@ -16,6 +16,8 @@ import {
 export function useERC20Balance(tokenAddress: `0x${string}`) {
   const { address } = useAccount()
 
+  console.log('Fetching ERC20 balance for address:', address)
+
   const {
     data: balance,
     error,
@@ -31,11 +33,7 @@ export function useERC20Balance(tokenAddress: `0x${string}`) {
     },
   })
 
-  console.log({
-    balance,
-    error,
-    isLoading,
-  })
+  console.log(balance, error, isLoading)
 
   const { data: decimals } = useReadContract({
     address: tokenAddress,
@@ -57,7 +55,41 @@ export function useERC20Balance(tokenAddress: `0x${string}`) {
   }
 }
 
-export function useYumAllowance() {
+export function useERC20TotalSupply(tokenAddress: `0x${string}`) {
+  const {
+    data: totalSupply,
+    isLoading,
+    refetch,
+  } = useReadContract({
+    address: tokenAddress,
+    abi: ERC20_ABI,
+    functionName: 'totalSupply',
+  })
+
+  const { data: decimals } = useReadContract({
+    address: tokenAddress,
+    abi: ERC20_ABI,
+    functionName: 'decimals',
+  })
+
+  const formattedTotalSupply =
+    totalSupply && decimals !== undefined
+      ? formatUnits(totalSupply as bigint, decimals as number)
+      : '0'
+
+  return {
+    totalSupply: formattedTotalSupply,
+    rawTotalSupply: totalSupply as bigint | undefined,
+    decimals: decimals as number | undefined,
+    isLoading,
+    refetch,
+  }
+}
+
+export function useERC20Allowance(
+  tokenAddress: `0x${string}`,
+  spender: `0x${string}`,
+) {
   const { address } = useAccount()
 
   const {
@@ -65,17 +97,17 @@ export function useYumAllowance() {
     isLoading,
     refetch,
   } = useReadContract({
-    address: YUM_TOKEN_ADDRESS,
+    address: tokenAddress,
     abi: ERC20_ABI,
     functionName: 'allowance',
-    args: address ? [address, VYUM_TOKEN_ADDRESS] : undefined,
+    args: address ? [address, spender] : undefined,
     query: {
       enabled: !!address,
     },
   })
 
   const { data: decimals } = useReadContract({
-    address: YUM_TOKEN_ADDRESS,
+    address: tokenAddress,
     abi: ERC20_ABI,
     functionName: 'decimals',
   })
@@ -298,7 +330,7 @@ export function useUnstakingRequests() {
     address: VYUM_TOKEN_ADDRESS,
     abi: STAKING_ABI,
     functionName: 'fetchRequests',
-    args: address ? [address, 0] : undefined, // 0 = pending status
+    args: address ? [address, 0] : undefined,
     query: {
       enabled: !!address,
     },
@@ -361,5 +393,58 @@ export function useCancelRequest() {
     isPending,
     isConfirming,
     isConfirmed,
+  }
+}
+
+export function useCalculateAPY() {
+  const { data: assetsFromOneVYUM } = useReadContract({
+    address: VYUM_TOKEN_ADDRESS,
+    abi: STAKING_ABI,
+    functionName: 'convertToAssets',
+    args: [parseUnits('1', 18)],
+  })
+
+  const { data: decimals } = useReadContract({
+    address: YUM_TOKEN_ADDRESS,
+    abi: ERC20_ABI,
+    functionName: 'decimals',
+  })
+
+  const contractDeploymentDate = new Date(1721433600000)
+
+  const calculateAPY = () => {
+    if (!assetsFromOneVYUM || !decimals) return null
+
+    const yumPerVYUM = Number(
+      formatUnits(assetsFromOneVYUM as bigint, decimals as number),
+    )
+
+    const now = new Date()
+    const timeElapsedMs = now.getTime() - contractDeploymentDate.getTime()
+    const timeElapsedYears = timeElapsedMs / (1000 * 60 * 60 * 24 * 365.25)
+
+    if (timeElapsedYears < 1 / 365.25) return null
+
+    const apy = Math.pow(yumPerVYUM, 1 / timeElapsedYears) - 1
+
+    return {
+      apy: apy * 100,
+      currentRate: yumPerVYUM,
+      timeElapsedYears,
+      deploymentDate: contractDeploymentDate,
+    }
+  }
+
+  const result = calculateAPY()
+
+  return {
+    apy: result?.apy
+      ? result.apy.toLocaleString(undefined, { maximumFractionDigits: 1 })
+      : null,
+    currentRate: result?.currentRate,
+    timeElapsedYears: result?.timeElapsedYears,
+    deploymentDate: result?.deploymentDate,
+    isLoading: !assetsFromOneVYUM || !decimals,
+    rawAssetsFromOneVYUM: assetsFromOneVYUM,
   }
 }

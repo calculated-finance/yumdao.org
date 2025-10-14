@@ -1,0 +1,79 @@
+name: 'Deploy Frontend: Reusable'
+
+on:
+  workflow_call:
+    inputs:
+      ENVIRONMENT:
+        type: string
+        required: true
+        description: Github environment to use
+      BUCKET_DOMAIN_NAME:
+        type: string
+        required: true
+        description: Domain name used for bucket name
+      AWS_ACCOUNT_ID:
+        type: string
+        description: 'AWS Account ID'
+        required: true
+      OIDC_ROLE_NAME:
+        type: string
+        description: 'OIDC Role Name for AWS authentication'
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest-m
+    name: Deploy Infrastructure
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: '22.x'
+          cache: 'pnpm'
+
+      - name: Install App Dependencies
+        working-directory: frontend
+        run: pnpm install
+
+      - name: Copy Environment Config Files
+        working-directory: frontend/infrastructure
+        run: cp -r ./${{ inputs.ENVIRONMENT }}/* ./
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ inputs.AWS_ACCOUNT_ID }}:role/${{ inputs.OIDC_ROLE_NAME }}
+          role-session-name: GitHubActions-${{ inputs.ENVIRONMENT }}
+          aws-region: ap-southeast-1
+
+      - name: Build App
+        working-directory: frontend
+        run: yarn build:${{ inputs.ENVIRONMENT }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.2.6
+          terraform_wrapper: false
+
+      - name: Terraform Initialization
+        working-directory: frontend/infrastructure
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: frontend/infrastructure
+        run: terraform apply -auto-approve
+
+      - name: Deploy App Assets
+        uses: reggionick/s3-deploy@v3
+        with:
+          folder: frontend/dist
+          bucket: ${{ inputs.BUCKET_DOMAIN_NAME }}
+          bucket-region: ${{ vars.AWS_REGION }}
+          delete-removed: true
+          cache: 'max-age=31536000'
+          private: false
+          filesToInclude: '.*/*,*/*,**,./.**/*'

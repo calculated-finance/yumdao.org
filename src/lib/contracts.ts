@@ -40,6 +40,13 @@ export const ERC20_ABI = [
     outputs: [{ name: '', type: 'uint8' }],
     type: 'function',
   },
+  {
+    constant: true,
+    inputs: [],
+    name: 'totalSupply',
+    outputs: [{ name: '', type: 'uint256' }],
+    type: 'function',
+  },
 ] as const
 
 export const STAKING_ABI = [
@@ -172,6 +179,25 @@ export const STAKING_ABI = [
     type: 'function',
     name: 'cooldownPeriod',
     inputs: [],
+    outputs: [
+      {
+        name: '',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'convertToAssets',
+    inputs: [
+      {
+        name: 'shares',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
     outputs: [
       {
         name: '',

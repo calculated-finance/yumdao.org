@@ -70,7 +70,16 @@ export function UnstakingRequestRow({
   return (
     <TableRow key={request.id.toString()}>
       <TableCell className="font-medium">
-        {parseFloat(request.amount).toFixed(6)} YUM
+        <div className="flex gap-2">
+          <img src="vyum.svg" alt="YUM Icon" className="h-5 w-5" />
+          <span>
+            {parseFloat(request.amount).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 6,
+            })}{' '}
+            vYUM
+          </span>
+        </div>
       </TableCell>
       <TableCell className="text-muted-foreground">
         {(request.availableAt ?? request.timeOfRequest).toLocaleString(
@@ -94,7 +103,7 @@ export function UnstakingRequestRow({
           </Button>
         )}
         <Button
-          variant="destructive"
+          variant="outline"
           size="sm"
           onClick={handleCancel}
           disabled={isCancelPending}

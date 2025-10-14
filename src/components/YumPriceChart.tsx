@@ -21,7 +21,7 @@ const timeFrameLabels: Record<TimeFrame, string> = {
 }
 
 export function YumPriceChart() {
-  const [selectedTimeFrame, setSelectedTimeFrame] = useState<TimeFrame>(7)
+  const [selectedTimeFrame, setSelectedTimeFrame] = useState<TimeFrame>(30)
 
   const {
     data: priceHistory,
@@ -67,7 +67,7 @@ export function YumPriceChart() {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 2,
-      maximumFractionDigits: 8,
+      maximumFractionDigits: 6,
     }).format(price)
   }
 
@@ -94,7 +94,7 @@ export function YumPriceChart() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <CardTitle className="flex items-start justify-between">
           YUM Price
           <div className="flex gap-1">
             {Object.keys(timeFrameLabels).map((timeFrame) => (
@@ -130,7 +130,7 @@ export function YumPriceChart() {
             </div>
           ) : currentPrice ? (
             <div>
-              <div className="text-3xl font-bold mb-1 yum-gradient">
+              <div className="text-3xl font-bold mb-1">
                 {formatPrice(currentPrice.current_price)}
               </div>
               <div className="flex items-center gap-2">
@@ -151,7 +151,7 @@ export function YumPriceChart() {
                 </Badge>
                 <span className="text-sm text-muted-foreground">
                   Change:{' '}
-                  <span className="text-primary font-medium">
+                  <span className="text-white font-medium">
                     {formatPrice(lastPrice - firstPrice)}
                   </span>
                 </span>
