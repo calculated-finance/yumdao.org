@@ -10,5 +10,6 @@ jobs:
     with:
       ENVIRONMENT: staging
       BUCKET_DOMAIN_NAME: staging.yumdao.zone
-      OIDC_ROLE_NAME: ${{ secrets.OIDC_ROLE_NAME }}
       AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+    secrets:
+      OIDC_ROLE_NAME: ${{ secrets.OIDC_ROLE_NAME }}

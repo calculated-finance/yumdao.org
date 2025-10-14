@@ -15,8 +15,8 @@ on:
         type: string
         description: 'AWS Account ID'
         required: true
+    secrets:
       OIDC_ROLE_NAME:
-        type: string
         description: 'OIDC Role Name for AWS authentication'
         required: true
 
@@ -45,7 +45,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ inputs.AWS_ACCOUNT_ID }}:role/${{ inputs.OIDC_ROLE_NAME }}
+          role-to-assume: arn:aws:iam::${{ inputs.AWS_ACCOUNT_ID }}:role/${{ secrets.OIDC_ROLE_NAME }}
           role-session-name: GitHubActions-${{ inputs.ENVIRONMENT }}
           aws-region: ap-southeast-1
 
