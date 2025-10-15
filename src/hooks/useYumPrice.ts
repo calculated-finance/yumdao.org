@@ -52,8 +52,8 @@ export const useYumPriceHistory = (timeFrame: TimeFrame = 7) => {
   return useQuery({
     queryKey: ['yum-price-history', timeFrame],
     queryFn: () => fetchYumPriceHistory(timeFrame),
-    staleTime: 1000 * 60 * 2, // 2 minutes
-    refetchInterval: 1000 * 60 * 2, // Refetch every 2 minutes
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchInterval: 1000 * 60 * 5, // Refetch every 5 minutes
   })
 }
 
@@ -61,7 +61,7 @@ export const useYumCurrentPrice = () => {
   return useQuery({
     queryKey: ['yum-current-price'],
     queryFn: fetchYumCurrentPrice,
-    staleTime: 1000 * 30, // 30 seconds
-    refetchInterval: 1000 * 30, // Refetch every 30 seconds
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchInterval: 1000 * 60 * 5, // Refetch every 5 minutes
   })
 }
