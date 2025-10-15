@@ -54,7 +54,7 @@ export function WalletConnectButton({
           <Button
             variant={variant}
             size={size}
-            className={`${className} flex items-center gap-2`}
+            className={`${className} flex items-center gap-2 cursor-pointer`}
             {...props}
           >
             <img height={14} width={14} src={connector?.icon} />

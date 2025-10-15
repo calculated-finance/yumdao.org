@@ -44,11 +44,9 @@ export function YumPriceChart() {
     )
   }, [priceHistory])
 
-  const { firstPrice, lastPrice, priceDelta } = useMemo(() => {
+  const { priceDelta } = useMemo(() => {
     if (!priceHistory || priceHistory.prices.length < 2)
       return {
-        firstPrice: 0,
-        lastPrice: 0,
         priceDelta: 0,
       }
 
@@ -56,8 +54,6 @@ export function YumPriceChart() {
     const lastPrice = priceHistory.prices[priceHistory.prices.length - 1][1]
 
     return {
-      firstPrice,
-      lastPrice,
       priceDelta: ((lastPrice - firstPrice) / firstPrice) * 100,
     }
   }, [priceHistory])
@@ -115,14 +111,16 @@ export function YumPriceChart() {
                     : 'border-primary/30 text-primary hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-all duration-200'
                 }
               >
-                {timeFrameLabels[Number(timeFrame) as TimeFrame]}
+                <span className="font-mono">
+                  {timeFrameLabels[Number(timeFrame) as TimeFrame]}
+                </span>
               </Button>
             ))}
           </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="mb-6">
+        <div className="mb-8">
           {priceLoading ? (
             <div className="animate-pulse">
               <div className="h-8 bg-muted rounded w-32 mb-2"></div>
@@ -130,13 +128,13 @@ export function YumPriceChart() {
             </div>
           ) : currentPrice ? (
             <div>
-              <div className="text-3xl font-bold mb-1">
+              <div className="text-3xl font-bold mb-1 font-mono">
                 {formatPrice(currentPrice.current_price)}
               </div>
               <div className="flex items-center gap-2">
                 <Badge
                   variant={priceDelta >= 0 ? 'default' : 'destructive'}
-                  className={`flex items-center gap-1 ${
+                  className={`flex items-center gap-1 font-mono ${
                     priceDelta >= 0
                       ? 'bg-gradient-to-r from-green-500 to-emerald-400 text-white border-0'
                       : 'bg-gradient-to-r from-red-500 to-pink-400 text-white border-0'
@@ -149,12 +147,6 @@ export function YumPriceChart() {
                   )}
                   {formatPercentage(priceDelta)}
                 </Badge>
-                <span className="text-sm text-muted-foreground">
-                  Change:{' '}
-                  <span className="text-white font-medium">
-                    {formatPrice(lastPrice - firstPrice)}
-                  </span>
-                </span>
               </div>
             </div>
           ) : null}
@@ -199,14 +191,28 @@ export function YumPriceChart() {
                       day: 'numeric',
                     })
                   }}
-                  tick={{ fontSize: 12, fill: '#9CA3AF' }}
-                  axisLine={{ stroke: '#4B5563', strokeWidth: 1 }}
-                  tickLine={{ stroke: '#6B7280', strokeWidth: 1 }}
+                  tick={{
+                    fontSize: 12,
+                    fill: '#9CA3AF',
+                    fontFamily: 'monospace',
+                  }}
+                  axisLine={{
+                    stroke: '#4B5563',
+                    strokeWidth: 1,
+                  }}
+                  tickLine={{
+                    stroke: '#6B7280',
+                    strokeWidth: 1,
+                  }}
                 />
                 <YAxis
                   domain={['dataMin', 'dataMax']}
                   tickFormatter={(value) => `$${value.toFixed(4)}`}
-                  tick={{ fontSize: 12, fill: '#9CA3AF' }}
+                  tick={{
+                    fontSize: 12,
+                    fill: '#9CA3AF',
+                    fontFamily: 'monospace',
+                  }}
                   axisLine={{ stroke: '#4B5563', strokeWidth: 1 }}
                   tickLine={{ stroke: '#6B7280', strokeWidth: 1 }}
                 />

@@ -57,7 +57,6 @@ export function UnstakingRequestRow({
   }
 
   const handleClaim = async () => {
-    // TODO: Implement claim functionality when available
     toast({
       title: 'Coming Soon',
       description: 'Claim functionality will be available soon',
@@ -72,16 +71,20 @@ export function UnstakingRequestRow({
       <TableCell className="font-medium">
         <div className="flex gap-2">
           <img src="vyum.svg" alt="YUM Icon" className="h-5 w-5" />
-          <span>
-            {parseFloat(request.amount).toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 6,
-            })}{' '}
-            vYUM
-          </span>
+          <div className="flex gap-1">
+            <span className="font-mono font-semibold">
+              {parseFloat(request.amount).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 6,
+              })}{' '}
+            </span>
+            <span className="text-muted-foreground font-mono font-semibold">
+              vYUM
+            </span>
+          </div>
         </div>
       </TableCell>
-      <TableCell className="text-muted-foreground">
+      <TableCell className="text-muted-foreground font-mono">
         {(request.availableAt ?? request.timeOfRequest).toLocaleString(
           undefined,
           {
@@ -107,7 +110,7 @@ export function UnstakingRequestRow({
           size="sm"
           onClick={handleCancel}
           disabled={isCancelPending}
-          className="text-xs"
+          className="text-xs font-mono font-semibold"
         >
           {isCancelPending ? 'Cancelling...' : 'Cancel'}
         </Button>

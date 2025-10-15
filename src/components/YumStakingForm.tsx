@@ -266,307 +266,258 @@ export function YumStakingForm() {
     setUnstakeAmount(maxAmount)
   }
 
-  if (!isConnected) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            YUM Staking
-            <div className="flex gap-1">
-              <Button
-                key="staking"
-                variant={isStaking ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setIsStaking(true)}
-                className={
-                  isStaking
-                    ? 'yum-gradient-bg text-background border-0 shadow-lg hover:shadow-xl transition-all duration-200'
-                    : 'border-primary/30 text-primary hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-all duration-200'
-                }
-              >
-                Staking
-              </Button>
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center h-64 text-muted-foreground">
-            Please connect your wallet to start staking
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
-
   return (
     <div className="space-y-6">
       <StakingInfoPanel />
 
-      <Card>
-        <Tabs defaultValue="stake" className="w-full">
+      {!isConnected ? (
+        <Card>
           <CardHeader>
-            <CardTitle className="flex items-start justify-between">
+            <CardTitle className="flex items-center justify-between">
               YUM Staking
-              <div className="flex gap-1">
-                <TabsList className="bg-transparent flex gap-1">
-                  <TabsTrigger
-                    value="stake"
-                    className="px-0 border-none bg-transparent"
-                  >
-                    <Button
-                      key="staking"
-                      variant={isStaking ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setIsStaking(true)}
-                      className={cn({
-                        'yum-gradient-bg text-background border-0 shadow-lg hover:shadow-xl transition-all duration-200':
-                          isStaking,
-                        'border-primary/30 text-primary hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-all duration-200':
-                          !isStaking,
-                      })}
-                    >
-                      Stake
-                    </Button>
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="unstake"
-                    className="px-0 border-none bg-transparent"
-                  >
-                    <Button
-                      key="unstaking"
-                      variant={!isStaking ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setIsStaking(false)}
-                      className={cn({
-                        'yum-gradient-bg text-background border-0 shadow-lg hover:shadow-xl transition-all duration-200':
-                          !isStaking,
-                        'border-primary/30 text-primary hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-all duration-200':
-                          isStaking,
-                      })}
-                    >
-                      Unstake
-                    </Button>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <TabsContent value="stake" className="space-y-4">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  stakeForm.handleSubmit()
-                }}
-                className="space-y-4"
-              >
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">
-                      Available Balance
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <img src="yum.svg" alt="YUM Icon" className="h-5 w-5" />
-                      <span className="font-semibold">
-                        {Number(yumBalance).toLocaleString(undefined, {
-                          maximumFractionDigits: 6,
-                        })}{' '}
-                        YUM
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <stakeForm.Field
-                  name="amount"
-                  validators={{
-                    onChange: ({ value }) => {
-                      if (!value) return 'Amount is required'
-                      const numValue = parseFloat(value)
-                      if (isNaN(numValue) || numValue <= 0)
-                        return 'Please enter a valid amount'
-                      const maxBalance = parseFloat(
-                        yumBalance.replace(',', '') || '0',
-                      )
-                      if (numValue > maxBalance) return 'Insufficient balance'
-                      return undefined
-                    },
-                  }}
-                >
-                  {(field) => (
-                    <div className="space-y-2">
-                      <Label htmlFor="stake-amount">Amount to Stake</Label>
-                      <div className="relative">
-                        <Input
-                          id="stake-amount"
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => {
-                            const value = e.target.value
-                            field.handleChange(value)
-                            setStakeAmount(value)
-                          }}
-                          placeholder="0.00"
-                          type="number"
-                          step="0.000001"
-                          className="pr-16"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={handleMaxStake}
-                          className="absolute right-1 top-1/2 transform -translate-y-1/2 h-auto py-1 px-2 text-xs"
-                        >
-                          MAX
-                        </Button>
-                      </div>
-                      {field.state.meta.errors.length > 0 && (
-                        <p className="text-sm text-destructive">
-                          {field.state.meta.errors[0]}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </stakeForm.Field>
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={
-                    isApproving ||
-                    isStakePending ||
-                    !stakeForm.state.isValid ||
-                    (!!stakeAmount &&
-                      stakeAmount !== '0' &&
-                      !stakeSimulation?.data) // Disable if simulation fails
-                  }
-                >
-                  {isApproving
-                    ? 'Approving...'
-                    : isStakePending
-                      ? 'Staking...'
-                      : stakeSimulation?.isLoading &&
-                          !!stakeAmount &&
-                          stakeAmount !== '0'
-                        ? 'Simulating Transaction...'
-                        : !!stakeAmount &&
-                            stakeAmount !== '0' &&
-                            stakeSimulation?.error
-                          ? 'Invalid Transaction'
-                          : 'Stake YUM'}
-                </Button>
-              </form>
-            </TabsContent>
-
-            <TabsContent value="unstake" className="space-y-4">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  unstakeForm.handleSubmit()
-                }}
-                className="space-y-4"
-              >
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">
-                      Staked Balance
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <img src="vyum.svg" alt="YUM Icon" className="h-5 w-5" />
-                      <span className="font-semibold">
-                        {Number(unstakeableAmount).toLocaleString(undefined, {
-                          maximumFractionDigits: 6,
-                        })}{' '}
-                        vYUM
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <unstakeForm.Field
-                  name="amount"
-                  validators={{
-                    onChange: ({ value }) => {
-                      if (!value) return 'Amount is required'
-                      const numValue = parseFloat(value)
-                      if (isNaN(numValue) || numValue <= 0)
-                        return 'Please enter a valid amount'
-                      const maxStaked = parseFloat(vYumBalance || '0')
-                      if (numValue > maxStaked)
-                        return 'Insufficient staked balance'
-                      return undefined
-                    },
-                  }}
-                >
-                  {(field) => (
-                    <div className="space-y-2">
-                      <Label htmlFor="unstake-amount">Amount to Unstake</Label>
-                      <div className="relative">
-                        <Input
-                          id="unstake-amount"
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => {
-                            const value = e.target.value
-                            field.handleChange(value)
-                            setUnstakeAmount(value) // Update tracked amount for simulation
-                          }}
-                          placeholder="0.00"
-                          type="number"
-                          step="0.000001"
-                          className="pr-16"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={handleMaxUnstake}
-                          className="absolute right-1 top-1/2 transform -translate-y-1/2 h-auto py-1 px-2 text-xs"
-                        >
-                          MAX
-                        </Button>
-                      </div>
-                      {field.state.meta.errors.length > 0 && (
-                        <p className="text-sm text-destructive">
-                          {field.state.meta.errors[0]}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </unstakeForm.Field>
-
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={
-                    isUnstakePending ||
-                    !unstakeForm.state.isValid ||
-                    (!!unstakeAmount &&
-                      unstakeAmount !== '0' &&
-                      !unstakeSimulation?.data) // Disable if simulation fails
-                  }
-                >
-                  {isUnstakePending
-                    ? 'Unstaking...'
-                    : unstakeSimulation?.isLoading &&
-                        !!unstakeAmount &&
-                        unstakeAmount !== '0'
-                      ? 'Simulating Transaction...'
-                      : !!unstakeAmount &&
-                          unstakeAmount !== '0' &&
-                          unstakeSimulation?.error
-                        ? 'Invalid Transaction'
-                        : 'Unstake YUM'}
-                </Button>
-              </form>
-            </TabsContent>
+            <div className="flex items-center justify-center h-64 text-muted-foreground">
+              Please connect your wallet to start staking
+            </div>
           </CardContent>
-        </Tabs>
-      </Card>
+        </Card>
+      ) : (
+        <Card>
+          <Tabs defaultValue="stake" className="w-full">
+            <CardHeader>
+              <CardTitle className="flex items-start justify-between">
+                YUM Staking
+                <div className="flex gap-1">
+                  <TabsList className="bg-transparent flex gap-1">
+                    <TabsTrigger
+                      value="stake"
+                      className="px-0 border-none bg-transparent"
+                    >
+                      <Button
+                        key="staking"
+                        variant={isStaking ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setIsStaking(true)}
+                        className={cn({
+                          'yum-gradient-bg text-background border-0 shadow-lg hover:shadow-xl transition-all duration-200':
+                            isStaking,
+                          'border-primary/30 text-white hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-all duration-200':
+                            !isStaking,
+                        })}
+                      >
+                        <span className="font-mono">Stake</span>
+                      </Button>
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="unstake"
+                      className="px-0 border-none bg-transparent"
+                    >
+                      <Button
+                        key="unstaking"
+                        variant={!isStaking ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setIsStaking(false)}
+                        className={cn({
+                          'yum-gradient-bg text-background border-0 shadow-lg hover:shadow-xl transition-all duration-200':
+                            !isStaking,
+                          'border-primary/30 text-white hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-all duration-200':
+                            isStaking,
+                        })}
+                      >
+                        <span className="font-mono">Unstake</span>
+                      </Button>
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TabsContent value="stake" className="space-y-4">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    stakeForm.handleSubmit()
+                  }}
+                  className="space-y-4"
+                >
+                  <stakeForm.Field
+                    name="amount"
+                    validators={{
+                      onChange: ({ value }) => {
+                        if (!value) return 'Amount is required'
+                        const numValue = parseFloat(value)
+                        if (isNaN(numValue) || numValue <= 0)
+                          return 'Please enter a valid amount'
+                        const maxBalance = parseFloat(
+                          yumBalance.replace(',', '') || '0',
+                        )
+                        if (numValue > maxBalance) return 'Insufficient balance'
+                        return undefined
+                      },
+                    }}
+                  >
+                    {(field) => (
+                      <div className="space-y-2">
+                        <Label htmlFor="stake-amount">Amount to Stake</Label>
+                        <div className="relative">
+                          <Input
+                            id="stake-amount"
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => {
+                              const value = e.target.value
+                              field.handleChange(value)
+                              setStakeAmount(value)
+                            }}
+                            placeholder="0.00"
+                            type="number"
+                            step="0.000001"
+                            className="pr-16"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleMaxStake}
+                            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-auto py-1 px-2 text-xs"
+                          >
+                            MAX
+                          </Button>
+                        </div>
+                        {field.state.meta.errors.length > 0 && (
+                          <p className="text-sm text-destructive">
+                            {field.state.meta.errors[0]}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </stakeForm.Field>
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={
+                      isApproving ||
+                      isStakePending ||
+                      !stakeForm.state.isValid ||
+                      (!!stakeAmount &&
+                        stakeAmount !== '0' &&
+                        !stakeSimulation?.data) // Disable if simulation fails
+                    }
+                  >
+                    {isApproving
+                      ? 'Approving...'
+                      : isStakePending
+                        ? 'Staking...'
+                        : stakeSimulation?.isLoading &&
+                            !!stakeAmount &&
+                            stakeAmount !== '0'
+                          ? 'Simulating Transaction...'
+                          : !!stakeAmount &&
+                              stakeAmount !== '0' &&
+                              stakeSimulation?.error
+                            ? 'Invalid Transaction'
+                            : 'Stake YUM'}
+                  </Button>
+                </form>
+              </TabsContent>
+
+              <TabsContent value="unstake" className="space-y-4">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    unstakeForm.handleSubmit()
+                  }}
+                  className="space-y-4"
+                >
+                  <unstakeForm.Field
+                    name="amount"
+                    validators={{
+                      onChange: ({ value }) => {
+                        if (!value) return 'Amount is required'
+                        const numValue = parseFloat(value)
+                        if (isNaN(numValue) || numValue <= 0)
+                          return 'Please enter a valid amount'
+                        const maxStaked = parseFloat(vYumBalance || '0')
+                        if (numValue > maxStaked)
+                          return 'Insufficient staked balance'
+                        return undefined
+                      },
+                    }}
+                  >
+                    {(field) => (
+                      <div className="space-y-2">
+                        <Label htmlFor="unstake-amount">
+                          Amount to Unstake
+                        </Label>
+                        <div className="relative">
+                          <Input
+                            id="unstake-amount"
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => {
+                              const value = e.target.value
+                              field.handleChange(value)
+                              setUnstakeAmount(value) // Update tracked amount for simulation
+                            }}
+                            placeholder="0.00"
+                            type="number"
+                            step="0.000001"
+                            className="pr-16"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleMaxUnstake}
+                            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-auto py-1 px-2 text-xs"
+                          >
+                            MAX
+                          </Button>
+                        </div>
+                        {field.state.meta.errors.length > 0 && (
+                          <p className="text-sm text-destructive">
+                            {field.state.meta.errors[0]}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </unstakeForm.Field>
+
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={
+                      isUnstakePending ||
+                      !unstakeForm.state.isValid ||
+                      (!!unstakeAmount &&
+                        unstakeAmount !== '0' &&
+                        !unstakeSimulation?.data) // Disable if simulation fails
+                    }
+                  >
+                    {isUnstakePending
+                      ? 'Unstaking...'
+                      : unstakeSimulation?.isLoading &&
+                          !!unstakeAmount &&
+                          unstakeAmount !== '0'
+                        ? 'Simulating Transaction...'
+                        : !!unstakeAmount &&
+                            unstakeAmount !== '0' &&
+                            unstakeSimulation?.error
+                          ? 'Invalid Transaction'
+                          : 'Unstake YUM'}
+                  </Button>
+                </form>
+              </TabsContent>
+            </CardContent>
+          </Tabs>
+        </Card>
+      )}
 
       <UnstakingRequestsCard />
     </div>

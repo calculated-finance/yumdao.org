@@ -25,7 +25,7 @@ export function StakingInfoPanel() {
               <span className="text-sm text-muted-foreground">
                 Lifetime APY
               </span>
-              <span className="font-semibold text-green-600">
+              <span className="font-semibold text-green-600 font-mono">
                 {isLoadingAPY ? (
                   <span className="text-muted-foreground">Loading...</span>
                 ) : apy ? (
@@ -37,7 +37,7 @@ export function StakingInfoPanel() {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">vYUM Price</span>
-              <span className="font-semibold">
+              <span className="font-semibold font-mono">
                 {!currentRate ? (
                   <span className="text-muted-foreground">Loading...</span>
                 ) : (
@@ -56,7 +56,7 @@ export function StakingInfoPanel() {
               <span className="text-sm text-muted-foreground">
                 Total supply staked
               </span>
-              <span className="font-semibold">
+              <span className="font-semibold font-mono">
                 {isLoadingTotalSupply || !currentRate ? (
                   <span className="text-muted-foreground">Loading...</span>
                 ) : (
@@ -70,7 +70,7 @@ export function StakingInfoPanel() {
               <span className="text-sm text-muted-foreground">
                 Unstaking Period
               </span>
-              <span className="font-semibold">2 weeks</span>
+              <span className="font-semibold font-mono">2 weeks</span>
             </div>
           </div>
         </div>
