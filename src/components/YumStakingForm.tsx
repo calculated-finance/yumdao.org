@@ -460,7 +460,7 @@ export function YumStakingForm() {
                               field.handleChange(value)
                               setUnstakeAmount(value) // Update tracked amount for simulation
                             }}
-                            placeholder="0.00"
+                            placeholder="0.00 (Amount to Unstake)"
                             type="number"
                             step="0.000001"
                             className="pr-16"
