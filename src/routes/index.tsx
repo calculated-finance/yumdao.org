@@ -35,7 +35,7 @@ function App() {
           </p>
         </div>
         {isConnected && !isLoading && (
-          <div className="flex gap-4 sm:gap-8 mb-8 lg:mb-0 items-end">
+          <div className="flex flex-col items-end justify-end sm:flex-row gap-4 sm:gap-8 mb-8 lg:mb-0 lg:items-end">
             <div className="flex items-center gap-2 sm:gap-3">
               <img
                 src="yum.svg"
@@ -48,7 +48,7 @@ function App() {
                     maximumFractionDigits: 6,
                   })}{' '}
                 </span>
-                <span className="text-muted-foreground text-lg sm:text-2xl font-semibold">
+                <span className="text-muted-foreground text-lg sm:text-2xl font-semibold font-mono">
                   YUM
                 </span>
               </div>
@@ -65,7 +65,7 @@ function App() {
                     maximumFractionDigits: 6,
                   })}{' '}
                 </span>
-                <span className="text-muted-foreground text-lg sm:text-2xl font-semibold">
+                <span className="text-muted-foreground text-lg sm:text-2xl font-semibold font-mono">
                   vYUM
                 </span>
               </div>

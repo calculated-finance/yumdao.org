@@ -278,7 +278,7 @@ export function YumStakingForm() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-center h-64 text-muted-foreground">
-              Please connect your wallet to start staking
+              Please connect your wallet to stake YUM
             </div>
           </CardContent>
         </Card>

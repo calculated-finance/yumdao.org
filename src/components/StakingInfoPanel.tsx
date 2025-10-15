@@ -29,7 +29,7 @@ export function StakingInfoPanel() {
                 {isLoadingAPY ? (
                   <span className="text-muted-foreground">Loading...</span>
                 ) : apy ? (
-                  `${apy}%`
+                  `${apy.toLocaleString(undefined, { maximumFractionDigits: 2 })}%`
                 ) : (
                   <span className="text-muted-foreground">Calculating...</span>
                 )}
@@ -61,7 +61,7 @@ export function StakingInfoPanel() {
                   <span className="text-muted-foreground">Loading...</span>
                 ) : (
                   `${(yumStaked / 1_000_000).toLocaleString(undefined, {
-                    maximumFractionDigits: 1,
+                    maximumFractionDigits: 2,
                   })}%`
                 )}
               </span>

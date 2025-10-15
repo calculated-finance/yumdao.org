@@ -18,7 +18,7 @@ export interface YumCurrentPrice {
 
 const fetchYumPriceHistory = async (days: TimeFrame): Promise<YumPriceData> => {
   const response = await fetch(
-    `https://ds8n73sva0ks0.cloudfront.net/cg/api/v3/coins/yum/market_chart?vs_currency=usd&days=${days}`,
+    `${import.meta.env.VITE_CLOUDFRONT_DISTRIBUTION_DOMAIN}/cg/api/v3/coins/yum/market_chart?vs_currency=usd&days=${days}`,
   )
 
   if (!response.ok) {
@@ -30,7 +30,7 @@ const fetchYumPriceHistory = async (days: TimeFrame): Promise<YumPriceData> => {
 
 const fetchYumCurrentPrice = async (): Promise<YumCurrentPrice> => {
   const response = await fetch(
-    `https://ds8n73sva0ks0.cloudfront.net/cg/api/v3/simple/price?ids=yum&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true`,
+    `${import.meta.env.VITE_CLOUDFRONT_DISTRIBUTION_DOMAIN}/cg/api/v3/simple/price?ids=yum&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true`,
   )
 
   if (!response.ok) {
@@ -52,8 +52,8 @@ export const useYumPriceHistory = (timeFrame: TimeFrame = 7) => {
   return useQuery({
     queryKey: ['yum-price-history', timeFrame],
     queryFn: () => fetchYumPriceHistory(timeFrame),
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    refetchInterval: 1000 * 60 * 5, // Refetch every 5 minutes
+    staleTime: 1000 * 60 * 5,
+    refetchInterval: 1000 * 60 * 5,
   })
 }
 
@@ -61,7 +61,7 @@ export const useYumCurrentPrice = () => {
   return useQuery({
     queryKey: ['yum-current-price'],
     queryFn: fetchYumCurrentPrice,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    refetchInterval: 1000 * 60 * 5, // Refetch every 5 minutes
+    staleTime: 1000 * 60 * 5,
+    refetchInterval: 1000 * 60 * 5,
   })
 }

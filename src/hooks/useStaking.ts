@@ -437,9 +437,7 @@ export function useCalculateAPY() {
   const result = calculateAPY()
 
   return {
-    apy: result?.apy
-      ? result.apy.toLocaleString(undefined, { maximumFractionDigits: 1 })
-      : null,
+    apy: result?.apy ? result.apy : null,
     currentRate: result?.currentRate,
     timeElapsedYears: result?.timeElapsedYears,
     deploymentDate: result?.deploymentDate,

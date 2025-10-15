@@ -84,7 +84,7 @@ export function UnstakingRequestRow({
           </div>
         </div>
       </TableCell>
-      <TableCell className="text-muted-foreground font-mono">
+      <TableCell className="font-mono">
         {(request.availableAt ?? request.timeOfRequest).toLocaleString(
           undefined,
           {
