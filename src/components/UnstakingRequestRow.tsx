@@ -68,7 +68,7 @@ export function UnstakingRequestRow({
 
   return (
     <TableRow key={request.id.toString()}>
-      <TableCell className="font-medium">
+      <TableCell className="font-medium whitespace-nowrap">
         <div className="flex gap-2">
           <img src="vyum.svg" alt="YUM Icon" className="h-5 w-5" />
           <div className="flex gap-1">
@@ -84,7 +84,7 @@ export function UnstakingRequestRow({
           </div>
         </div>
       </TableCell>
-      <TableCell className="font-mono">
+      <TableCell className="font-mono whitespace-nowrap">
         {(request.availableAt ?? request.timeOfRequest).toLocaleString(
           undefined,
           {
@@ -94,7 +94,7 @@ export function UnstakingRequestRow({
           },
         )}
       </TableCell>
-      <TableCell className="flex gap-2 justify-end">
+      <TableCell className="flex gap-2 justify-end whitespace-nowrap">
         {isClaimable && (
           <Button
             variant="outline"
