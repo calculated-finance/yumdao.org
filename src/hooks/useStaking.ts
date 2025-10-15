@@ -378,14 +378,13 @@ export function useCancelRequest() {
       hash,
     })
 
-  const cancelRequest = async (requestId: string | number) => {
-    return writeContract({
+  const cancelRequest = async (requestId: string | number) =>
+    writeContract({
       address: VYUM_TOKEN_ADDRESS,
       abi: STAKING_ABI,
       functionName: 'cancelRequest',
       args: [BigInt(requestId)],
     })
-  }
 
   return {
     cancelRequest,

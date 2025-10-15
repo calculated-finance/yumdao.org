@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
 
 export type TimeFrame = 7 | 30 | 365
 
@@ -18,39 +17,27 @@ export interface YumCurrentPrice {
 }
 
 const fetchYumPriceHistory = async (days: TimeFrame): Promise<YumPriceData> => {
-  const response = await axios.get(
-    `https://pro-api.coingecko.com/api/v3/coins/yum/market_chart?vs_currency=usd&days=${days}`,
-    {
-      headers: {
-        'x-cg-pro-api-key': import.meta.env.VITE_COINGECKO_API_KEY,
-        'Allow-Control-Allow-Origin': '*',
-      },
-    },
+  const response = await fetch(
+    `https://ds8n73sva0ks0.cloudfront.net/cg/api/v3/coins/yum/market_chart?vs_currency=usd&days=${days}`,
   )
 
-  if (response.status !== 200) {
+  if (!response.ok) {
     throw new Error('Failed to fetch YUM price data')
   }
 
-  return response.data
+  return response.json()
 }
 
 const fetchYumCurrentPrice = async (): Promise<YumCurrentPrice> => {
-  const response = await axios.get(
-    `https://pro-api.coingecko.com/api/v3/simple/price?ids=yum&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true`,
-    {
-      headers: {
-        'x-cg-pro-api-key': import.meta.env.VITE_COINGECKO_API_KEY,
-        'Allow-Control-Allow-Origin': '*',
-      },
-    },
+  const response = await fetch(
+    `https://ds8n73sva0ks0.cloudfront.net/cg/api/v3/simple/price?ids=yum&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true`,
   )
 
-  if (response.status !== 200) {
+  if (!response.ok) {
     throw new Error('Failed to fetch YUM current price')
   }
 
-  const data = response.data
+  const data = await response.json()
 
   return {
     current_price: data.yum.usd,
