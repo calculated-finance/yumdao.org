@@ -1,9 +1,9 @@
+import { createFileRoute } from '@tanstack/react-router'
+import { useAccount } from 'wagmi'
 import { YumPriceChart } from '@/components/YumPriceChart'
 import { YumStakingForm } from '@/components/YumStakingForm'
 import { useERC20Balance } from '@/hooks/useStaking'
 import { VYUM_TOKEN_ADDRESS, YUM_TOKEN_ADDRESS } from '@/lib/contracts'
-import { createFileRoute } from '@tanstack/react-router'
-import { useAccount } from 'wagmi'
 
 export const Route = createFileRoute('/')({
   component: App,

@@ -1,7 +1,7 @@
-import type { Toast } from '@/hooks/useToast'
-import { cn } from '@/lib/utils'
 import { AlertTriangle, CheckCircle, X, XCircle } from 'lucide-react'
 import { Button } from './button'
+import type { Toast } from '@/hooks/useToast'
+import { cn } from '@/lib/utils'
 
 interface ToastProps {
   toast: Toast
@@ -56,7 +56,7 @@ export function ToastComponent({ toast, onDismiss }: ToastProps) {
 }
 
 interface ToasterProps {
-  toasts: Toast[]
+  toasts: Array<Toast>
   onDismiss: (id: string) => void
 }
 

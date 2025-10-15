@@ -42,7 +42,7 @@ export function UnstakingRequestRow({
 
   const handleCancel = async () => {
     try {
-      await cancelRequest(request.id.toString())
+      cancelRequest(request.id.toString())
     } catch (error) {
       console.error('Cancel request failed:', error)
       toast({
@@ -56,7 +56,7 @@ export function UnstakingRequestRow({
     }
   }
 
-  const handleClaim = async () => {
+  const handleClaim = () => {
     toast({
       title: 'Coming Soon',
       description: 'Claim functionality will be available soon',

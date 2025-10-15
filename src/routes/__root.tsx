@@ -1,13 +1,9 @@
-import { TanStackDevtools } from '@tanstack/react-devtools'
 import { Outlet, createRootRouteWithContext } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 
-import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
-
+import type { QueryClient } from '@tanstack/react-query'
 import { Header } from '@/components/Header'
 import { Toaster } from '@/components/ui/toast'
 import { useToast } from '@/hooks/useToast'
-import type { QueryClient } from '@tanstack/react-query'
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -21,7 +17,7 @@ function RootLayout() {
       <Header />
       <Outlet />
       <Toaster toasts={toasts} onDismiss={dismiss} />
-      <TanStackDevtools
+      {/* <TanStackDevtools
         config={{
           position: 'bottom-right',
         }}
@@ -32,7 +28,7 @@ function RootLayout() {
           },
           TanStackQueryDevtools,
         ]}
-      />
+      /> */}
     </>
   )
 }

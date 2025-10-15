@@ -1,16 +1,16 @@
+import { arbitrum } from '@reown/appkit/networks'
+import { useAppKit, useAppKitAccount, useDisconnect } from '@reown/appkit/react'
+import { ChevronDown } from 'lucide-react'
+import * as React from 'react'
+import { useAccount, useSwitchChain } from 'wagmi'
+import type { VariantProps } from 'class-variance-authority'
 import type { buttonVariants } from '@/components/ui/button'
-import { Button } from '@/components/ui/button'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { arbitrum } from '@reown/appkit/networks'
-import { useAppKit, useAppKitAccount, useDisconnect } from '@reown/appkit/react'
-import type { VariantProps } from 'class-variance-authority'
-import { ChevronDown } from 'lucide-react'
-import * as React from 'react'
-import { useAccount, useSwitchChain } from 'wagmi'
+import { Button } from '@/components/ui/button'
 
 interface WalletConnectButtonProps
   extends React.ComponentProps<'button'>,

@@ -16,11 +16,8 @@ import {
 export function useERC20Balance(tokenAddress: `0x${string}`) {
   const { address } = useAccount()
 
-  console.log('Fetching ERC20 balance for address:', address)
-
   const {
     data: balance,
-    error,
     isLoading,
     refetch,
   } = useReadContract({
@@ -32,8 +29,6 @@ export function useERC20Balance(tokenAddress: `0x${string}`) {
       enabled: !!address,
     },
   })
-
-  console.log(balance, error, isLoading)
 
   const { data: decimals } = useReadContract({
     address: tokenAddress,
@@ -151,12 +146,12 @@ export function useStakedBalance() {
 
   const formattedStaked =
     stakedAmount && decimals !== undefined
-      ? formatUnits(stakedAmount as bigint, decimals as number)
+      ? formatUnits(stakedAmount, decimals as number)
       : '0'
 
   return {
     stakedBalance: formattedStaked,
-    rawStakedBalance: stakedAmount as bigint | undefined,
+    rawStakedBalance: stakedAmount,
     decimals: decimals as number | undefined,
     isLoading,
     refetch,
@@ -180,7 +175,7 @@ export function useApproveERC20(
     functionName: 'decimals',
   })
 
-  const approve = async (amount: string) => {
+  const approve = (amount: string) => {
     if (!decimals) throw new Error('Failed to get token decimals')
 
     const parsedAmount = parseUnits(amount, decimals as number)
@@ -218,7 +213,9 @@ export function useStakeYum(amount?: string) {
   })
 
   const parsedAmount =
-    amount && decimals ? parseUnits(amount, decimals as number) : undefined
+    amount && !isNaN(Number(amount)) && decimals
+      ? parseUnits(amount, decimals as number)
+      : undefined
 
   const simulation = useSimulateContract({
     address: VYUM_TOKEN_ADDRESS,
@@ -236,7 +233,7 @@ export function useStakeYum(amount?: string) {
     },
   })
 
-  const stake = async (stakeAmount: string) => {
+  const stake = (stakeAmount: string) => {
     if (!decimals) throw new Error('Failed to get token decimals')
     if (!address) throw new Error('No connected wallet address')
 
@@ -294,9 +291,7 @@ export function useUnstakeYum(amount?: string) {
     },
   })
 
-  console.log(simulation)
-
-  const unstake = async (unstakeAmount: string) => {
+  const unstake = (unstakeAmount: string) => {
     if (!decimals) throw new Error('Failed to get token decimals')
 
     const parsedUnstakeAmount = parseUnits(unstakeAmount, decimals as number)
@@ -350,7 +345,7 @@ export function useUnstakingRequests() {
 
   const formattedRequests =
     requests && decimals && cooldownPeriod
-      ? (requests as any[]).map((request: any) => ({
+      ? (requests as Array<any>).map((request: any) => ({
           id: request.id,
           shares: request.shares,
           amount: formatUnits(request.shares as bigint, decimals as number),
@@ -364,7 +359,7 @@ export function useUnstakingRequests() {
 
   return {
     requests: formattedRequests,
-    rawRequests: requests as any[] | undefined,
+    rawRequests: requests as Array<any> | undefined,
     isLoading,
     refetch,
   }
@@ -378,7 +373,7 @@ export function useCancelRequest() {
       hash,
     })
 
-  const cancelRequest = async (requestId: string | number) =>
+  const cancelRequest = (requestId: string | number) =>
     writeContract({
       address: VYUM_TOKEN_ADDRESS,
       abi: STAKING_ABI,
@@ -415,7 +410,7 @@ export function useCalculateAPY() {
     if (!assetsFromOneVYUM || !decimals) return null
 
     const yumPerVYUM = Number(
-      formatUnits(assetsFromOneVYUM as bigint, decimals as number),
+      formatUnits(assetsFromOneVYUM, decimals as number),
     )
 
     const now = new Date()

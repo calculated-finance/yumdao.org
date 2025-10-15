@@ -1,3 +1,4 @@
+import { useAccount } from 'wagmi'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Table,
@@ -8,7 +9,6 @@ import {
 } from '@/components/ui/table'
 import { UnstakingRequestRow } from '@/components/UnstakingRequestRow'
 import { useUnstakingRequests } from '@/hooks/useStaking'
-import { useAccount } from 'wagmi'
 
 export function UnstakingRequestsCard() {
   const { isConnected } = useAccount()

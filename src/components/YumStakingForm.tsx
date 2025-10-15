@@ -1,7 +1,7 @@
 import { StakingInfoPanel } from '@/components/StakingInfoPanel'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import { NumberInput } from '@/components/ui/number-input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { UnstakingRequestsCard } from '@/components/UnstakingRequestsCard'
 import {
@@ -21,11 +21,11 @@ import { parseUnits } from 'viem'
 import { useAccount } from 'wagmi'
 
 interface StakeFormData {
-  amount: string
+  amount: number | undefined
 }
 
 interface UnstakeFormData {
-  amount: string
+  amount: number | undefined
 }
 
 export function YumStakingForm() {
@@ -126,7 +126,7 @@ export function YumStakingForm() {
 
   const stakeForm = useForm({
     defaultValues: {
-      amount: '',
+      amount: 0,
     },
     onSubmit: async ({ value }: { value: StakeFormData }) => {
       if (!isConnected || !address) {
@@ -139,7 +139,7 @@ export function YumStakingForm() {
       }
 
       try {
-        const amount = value.amount.trim()
+        const amount = value.amount
         if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
           toast({
             title: 'Invalid Amount',
@@ -149,7 +149,7 @@ export function YumStakingForm() {
           return
         }
 
-        if (Number(amount) > Number(yumBalance)) {
+        if (amount > Number(yumBalance)) {
           toast({
             title: 'Insufficient Balance',
             description:
@@ -159,7 +159,7 @@ export function YumStakingForm() {
           return
         }
 
-        const requiredAllowance = parseUnits(amount, 18)
+        const requiredAllowance = parseUnits(`${amount}`, 18)
         const currentAllowance = parseUnits(stakingAllowance || '0', 18)
 
         if (currentAllowance < requiredAllowance) {
@@ -168,7 +168,7 @@ export function YumStakingForm() {
             description: 'Approving YUM tokens for staking...',
             variant: 'default',
           })
-          await approve(amount)
+          await approve(`${amount}`)
           return
         }
 
@@ -178,7 +178,7 @@ export function YumStakingForm() {
           variant: 'default',
         })
 
-        await stake(amount)
+        await stake(`${amount}`)
         stakeForm.reset()
         setStakeAmount('')
       } catch (error) {
@@ -197,7 +197,7 @@ export function YumStakingForm() {
 
   const unstakeForm = useForm({
     defaultValues: {
-      amount: '',
+      amount: 0,
     },
     onSubmit: async ({ value }: { value: UnstakeFormData }) => {
       if (!isConnected || !address) {
@@ -210,7 +210,7 @@ export function YumStakingForm() {
       }
 
       try {
-        const amount = value.amount.trim()
+        const amount = value.amount
         if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
           toast({
             title: 'Invalid Amount',
@@ -236,7 +236,7 @@ export function YumStakingForm() {
           variant: 'default',
         })
 
-        await unstake(amount)
+        await unstake(`${amount}`)
         unstakeForm.reset()
         setUnstakeAmount('')
       } catch (error) {
@@ -252,18 +252,6 @@ export function YumStakingForm() {
       }
     },
   })
-
-  const handleMaxStake = () => {
-    const maxAmount = yumBalance.replace(',', '')
-    stakeForm.setFieldValue('amount', maxAmount)
-    setStakeAmount(maxAmount)
-  }
-
-  const handleMaxUnstake = () => {
-    const maxAmount = unstakeableAmount
-    unstakeForm.setFieldValue('amount', maxAmount)
-    setUnstakeAmount(maxAmount)
-  }
 
   return (
     <div className="space-y-6">
@@ -347,13 +335,12 @@ export function YumStakingForm() {
                     validators={{
                       onChange: ({ value }) => {
                         if (!value) return 'Amount is required'
-                        const numValue = parseFloat(value)
-                        if (isNaN(numValue) || numValue <= 0)
-                          return 'Please enter a valid amount'
+
+                        if (value <= 0) return 'Amount must be greater than 0'
                         const maxBalance = parseFloat(
                           yumBalance.replace(',', '') || '0',
                         )
-                        if (numValue > maxBalance) return 'Insufficient balance'
+                        if (value > maxBalance) return 'Insufficient balance'
                         return undefined
                       },
                     }}
@@ -361,29 +348,34 @@ export function YumStakingForm() {
                     {(field) => (
                       <div className="space-y-2">
                         <div className="relative">
-                          <Input
+                          <NumberInput
                             id="stake-amount"
                             name={field.name}
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => {
-                              const value = e.target.value
-                              field.handleChange(value)
-                              setStakeAmount(value)
+                            value={field.state.value || undefined}
+                            onValueChange={(v) => {
+                              field.setValue(Number(v))
+                              setStakeAmount(v.toLocaleString())
                             }}
-                            placeholder="0.00 (Amount to Stake)"
-                            type="number"
-                            step="0.000001"
-                            className="pr-16"
+                            onBlur={field.handleBlur}
+                            placeholder={(0).toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                            })}
+                            size="md"
+                            isWheelDisabled
+                            hideStepper
                           />
                           <Button
                             type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={handleMaxStake}
+                            onClick={() => {
+                              const maxAmount = yumBalance.replace(',', '')
+                              field.setValue(Number(maxAmount))
+                              setStakeAmount(maxAmount)
+                            }}
                             className="absolute right-1 top-1/2 transform -translate-y-1/2 h-auto py-1 px-2 text-xs font-mono font-semibold text-muted-foreground"
                           >
-                            MAX
+                            MAX ({Number(yumBalance).toLocaleString()} YUM)
                           </Button>
                         </div>
                         {field.state.meta.errors.length > 0 && (
@@ -403,20 +395,18 @@ export function YumStakingForm() {
                       !stakeForm.state.isValid ||
                       (!!stakeAmount &&
                         stakeAmount !== '0' &&
-                        !stakeSimulation?.data) // Disable if simulation fails
+                        !stakeSimulation.data)
                     }
                   >
                     {isApproving
                       ? 'Approving...'
                       : isStakePending
                         ? 'Staking...'
-                        : stakeSimulation?.isLoading &&
+                        : stakeSimulation.isLoading &&
                             !!stakeAmount &&
                             stakeAmount !== '0'
                           ? 'Simulating Transaction...'
-                          : !!stakeAmount &&
-                              stakeAmount !== '0' &&
-                              stakeSimulation?.error
+                          : !!stakeAmount && stakeSimulation.error
                             ? 'Invalid Transaction'
                             : 'Stake YUM'}
                   </Button>
@@ -437,11 +427,9 @@ export function YumStakingForm() {
                     validators={{
                       onChange: ({ value }) => {
                         if (!value) return 'Amount is required'
-                        const numValue = parseFloat(value)
-                        if (isNaN(numValue) || numValue <= 0)
-                          return 'Please enter a valid amount'
+                        if (value <= 0) return 'Amount must be greater than 0'
                         const maxStaked = parseFloat(vYumBalance || '0')
-                        if (numValue > maxStaked)
+                        if (value > maxStaked)
                           return 'Insufficient staked balance'
                         return undefined
                       },
@@ -450,29 +438,34 @@ export function YumStakingForm() {
                     {(field) => (
                       <div className="space-y-2">
                         <div className="relative">
-                          <Input
-                            id="unstake-amount"
+                          <NumberInput
+                            id="stake-amount"
                             name={field.name}
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => {
-                              const value = e.target.value
-                              field.handleChange(value)
-                              setUnstakeAmount(value) // Update tracked amount for simulation
+                            value={field.state.value || undefined}
+                            onValueChange={(v) => {
+                              field.setValue(Number(v))
+                              setUnstakeAmount(v.toLocaleString())
                             }}
-                            placeholder="0.00 (Amount to Unstake)"
-                            type="number"
-                            step="0.000001"
-                            className="pr-16"
+                            placeholder={(0).toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                            })}
+                            size="md"
+                            isWheelDisabled
+                            hideStepper
                           />
                           <Button
                             type="button"
                             variant="ghost"
                             size="sm"
-                            onClick={handleMaxUnstake}
+                            onClick={() => {
+                              const maxAmount = unstakeableAmount
+                              field.setValue(Number(maxAmount))
+                              setUnstakeAmount(maxAmount)
+                            }}
                             className="absolute right-1 top-1/2 transform -translate-y-1/2 h-auto py-1 px-2 text-xs font-mono font-semibold text-muted-foreground"
                           >
-                            MAX
+                            MAX ({Number(unstakeableAmount).toLocaleString()}{' '}
+                            vYUM)
                           </Button>
                         </div>
                         {field.state.meta.errors.length > 0 && (
@@ -486,25 +479,25 @@ export function YumStakingForm() {
 
                   <Button
                     type="submit"
-                    className="w-full"
+                    className="w-full font-mono font-medium"
                     disabled={
                       isUnstakePending ||
                       !unstakeForm.state.isValid ||
                       (!!unstakeAmount &&
                         unstakeAmount !== '0' &&
-                        !unstakeSimulation?.data) // Disable if simulation fails
+                        !unstakeSimulation.data) // Disable if simulation fails
                     }
                   >
                     {isUnstakePending
                       ? 'Unstaking...'
-                      : unstakeSimulation?.isLoading &&
+                      : unstakeSimulation.isLoading &&
                           !!unstakeAmount &&
                           unstakeAmount !== '0'
                         ? 'Simulating Transaction...'
                         : !!unstakeAmount &&
                             unstakeAmount !== '0' &&
-                            unstakeSimulation?.error
-                          ? 'Invalid Transaction'
+                            unstakeSimulation.error
+                          ? 'Invalid Transaction!'
                           : 'Unstake YUM'}
                   </Button>
                 </form>

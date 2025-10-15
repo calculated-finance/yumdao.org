@@ -9,7 +9,7 @@ export interface Toast {
 }
 
 interface ToastState {
-  toasts: Toast[]
+  toasts: Array<Toast>
 }
 
 const TOAST_LIMIT = 3
@@ -24,9 +24,9 @@ function genId() {
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
 const addToast = (
-  toasts: Toast[],
+  toasts: Array<Toast>,
   toast: Omit<Toast, 'id'> & { id?: string },
-): Toast[] => {
+): Array<Toast> => {
   const id = toast.id || genId()
   const newToast: Toast = {
     ...toast,
@@ -43,7 +43,7 @@ const addToast = (
   return [newToast, ...toasts].slice(0, TOAST_LIMIT)
 }
 
-const removeToast = (toasts: Toast[], toastId: string): Toast[] => {
+const removeToast = (toasts: Array<Toast>, toastId: string): Array<Toast> => {
   return toasts.filter((t) => t.id !== toastId)
 }
 

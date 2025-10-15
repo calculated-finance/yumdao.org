@@ -1,8 +1,3 @@
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { TimeFrame } from '@/hooks/useYumPrice'
-import { useYumCurrentPrice, useYumPriceHistory } from '@/hooks/useYumPrice'
 import { TrendingDown, TrendingUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import {
@@ -13,6 +8,11 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
+import type { TimeFrame } from '@/hooks/useYumPrice'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useYumCurrentPrice, useYumPriceHistory } from '@/hooks/useYumPrice'
 
 const timeFrameLabels: Record<TimeFrame, string> = {
   7: '7D',
