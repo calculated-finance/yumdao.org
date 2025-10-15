@@ -48,7 +48,7 @@ jobs:
       - name: Build App
         run: pnpm build
         env:
-          VITE_CLOUDFRONT_DISTRIBUTION_DOMAIN: ${{ vars.CLOUDFRONT_DISTRIBUTION_DOMAIN }}
+          VITE_CLOUDFRONT_DISTRIBUTION_DOMAIN: ${{ vars.VITE_CLOUDFRONT_DISTRIBUTION_DOMAIN }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
