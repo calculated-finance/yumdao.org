@@ -43,7 +43,7 @@ function App() {
                 className="h-6 w-6 sm:h-8 sm:w-8"
               />
               <div className="flex items-end gap-1 sm:gap-2">
-                <span className="text-white text-xl sm:text-3xl font-mono font-bold">
+                <span className="text-white text-xl sm:text-3xl font-mono font-semibold">
                   {Number(yumBalance).toLocaleString(undefined, {
                     maximumFractionDigits: 6,
                   })}{' '}
@@ -60,7 +60,7 @@ function App() {
                 className="h-6 w-6 sm:h-8 sm:w-8"
               />
               <div className="flex items-end gap-1 sm:gap-2">
-                <span className="text-white text-xl sm:text-3xl font-bold font-mono">
+                <span className="text-white text-xl sm:text-3xl font-semibold font-mono">
                   {Number(vYumBalance).toLocaleString(undefined, {
                     maximumFractionDigits: 6,
                   })}{' '}

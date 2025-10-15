@@ -108,7 +108,7 @@ export function YumPriceChart() {
                 className={
                   selectedTimeFrame === Number(timeFrame)
                     ? 'yum-gradient-bg text-background border-0 shadow-lg hover:shadow-xl transition-all duration-200'
-                    : 'border-primary/30 text-primary hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-all duration-200'
+                    : 'border-primary/30 text-white hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-all duration-200'
                 }
               >
                 <span className="font-mono">

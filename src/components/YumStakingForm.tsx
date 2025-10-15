@@ -2,7 +2,6 @@ import { StakingInfoPanel } from '@/components/StakingInfoPanel'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { UnstakingRequestsCard } from '@/components/UnstakingRequestsCard'
 import {
@@ -361,7 +360,6 @@ export function YumStakingForm() {
                   >
                     {(field) => (
                       <div className="space-y-2">
-                        <Label htmlFor="stake-amount">Amount to Stake</Label>
                         <div className="relative">
                           <Input
                             id="stake-amount"
@@ -373,7 +371,7 @@ export function YumStakingForm() {
                               field.handleChange(value)
                               setStakeAmount(value)
                             }}
-                            placeholder="0.00"
+                            placeholder="0.00 (Amount to Stake)"
                             type="number"
                             step="0.000001"
                             className="pr-16"
@@ -383,7 +381,7 @@ export function YumStakingForm() {
                             variant="ghost"
                             size="sm"
                             onClick={handleMaxStake}
-                            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-auto py-1 px-2 text-xs"
+                            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-auto py-1 px-2 text-xs font-mono font-semibold text-muted-foreground"
                           >
                             MAX
                           </Button>
@@ -451,9 +449,6 @@ export function YumStakingForm() {
                   >
                     {(field) => (
                       <div className="space-y-2">
-                        <Label htmlFor="unstake-amount">
-                          Amount to Unstake
-                        </Label>
                         <div className="relative">
                           <Input
                             id="unstake-amount"
@@ -475,7 +470,7 @@ export function YumStakingForm() {
                             variant="ghost"
                             size="sm"
                             onClick={handleMaxUnstake}
-                            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-auto py-1 px-2 text-xs"
+                            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-auto py-1 px-2 text-xs font-mono font-semibold text-muted-foreground"
                           >
                             MAX
                           </Button>
