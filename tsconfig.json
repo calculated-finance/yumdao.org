@@ -29,7 +29,11 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "rujira.ui": ["./node_modules/rujira.ui/packages/rujira.ui/src/index"],
+      "rujira.ui/*": ["./node_modules/rujira.ui/packages/rujira.ui/src/*"],
+      "rujira.js": ["./node_modules/rujira.ui/packages/rujira.js/dist/index"],
+      "rujira.js/*": ["./node_modules/rujira.ui/packages/rujira.js/dist/*"]
     }
   }
 }

@@ -6,9 +6,8 @@ export const projectId = '5c06da8ccdd14f20486cab1f9c13be72'
 export const networks = [arbitrum]
 
 export const metadata = {
-  name: 'Yum',
-  description:
-    'A modern web3 application built with TanStack and WalletConnect',
+  name: 'YUM DAO',
+  description: 'YUM DAO',
   url:
     typeof window !== 'undefined'
       ? window.location.origin

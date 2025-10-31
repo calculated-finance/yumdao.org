@@ -46,7 +46,9 @@
     "tw-animate-css": "^1.3.6",
     "viem": "^2.38.0",
     "wagmi": "^2.18.0",
-    "zod": "^4.1.11"
+    "zod": "^4.1.11",
+    "rujira.ui": "https://gitlab.com/api/v4/projects/61772418/repository/archive.tar.gz?sha=baf4b7d68f9c14a2ccd09f96d64fa6ef218d0fe7&path=packages/rujira.ui",
+    "rujira.js": "https://gitlab.com/api/v4/projects/61772418/repository/archive.tar.gz?sha=baf4b7d68f9c14a2ccd09f96d64fa6ef218d0fe7&path=packages/rujira.js"
   },
   "devDependencies": {
     "@tanstack/eslint-config": "^0.3.0",
