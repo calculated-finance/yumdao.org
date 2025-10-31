@@ -390,6 +390,63 @@ export function useCancelRequest() {
   }
 }
 
+export function useClaimRequest() {
+  const { writeContract, data: hash, isPending } = useWriteContract()
+  const { address } = useAccount()
+
+  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+    useWaitForTransactionReceipt({
+      hash,
+    })
+
+  const claimRequest = (
+    requestId: string | number,
+    receiver?: `0x${string}`,
+  ) => {
+    if (!address) throw new Error('No connected wallet address')
+
+    const receiverAddress = receiver || address
+
+    return writeContract({
+      address: VYUM_TOKEN_ADDRESS,
+      abi: STAKING_ABI,
+      functionName: 'redeem',
+      args: [receiverAddress, address, BigInt(requestId)],
+    })
+  }
+
+  // Simulation function for a specific request
+  const useClaimSimulation = (
+    requestId?: string | number,
+    receiver?: `0x${string}`,
+  ) => {
+    const receiverAddress = receiver || address
+
+    return useSimulateContract({
+      address: VYUM_TOKEN_ADDRESS,
+      abi: STAKING_ABI,
+      functionName: 'redeem',
+      args:
+        requestId && address && receiverAddress
+          ? [receiverAddress, address, BigInt(requestId)]
+          : undefined,
+      account: address,
+      query: {
+        enabled: !!address && !!requestId && !!receiverAddress,
+      },
+    })
+  }
+
+  return {
+    claimRequest,
+    useClaimSimulation,
+    hash,
+    isPending,
+    isConfirming,
+    isConfirmed,
+  }
+}
+
 export function useCalculateAPY() {
   const { data: assetsFromOneVYUM } = useReadContract({
     address: VYUM_TOKEN_ADDRESS,

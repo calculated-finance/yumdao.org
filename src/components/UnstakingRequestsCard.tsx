@@ -1,4 +1,3 @@
-import { useAccount } from 'wagmi'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Table,
@@ -9,8 +8,15 @@ import {
 } from '@/components/ui/table'
 import { UnstakingRequestRow } from '@/components/UnstakingRequestRow'
 import { useUnstakingRequests } from '@/hooks/useStaking'
+import { useAccount } from 'wagmi'
 
-export function UnstakingRequestsCard() {
+interface UnstakingRequestsCardProps {
+  onBalanceRefresh?: () => void
+}
+
+export function UnstakingRequestsCard({
+  onBalanceRefresh,
+}: UnstakingRequestsCardProps) {
   const { isConnected } = useAccount()
   const { requests: pendingRequests, refetch: refetchRequests } =
     useUnstakingRequests()
@@ -55,6 +61,10 @@ export function UnstakingRequestsCard() {
                     request={request}
                     onRequestCancelled={() => {
                       refetchRequests()
+                    }}
+                    onRequestClaimed={() => {
+                      refetchRequests()
+                      onBalanceRefresh?.()
                     }}
                   />
                 ))}

@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { TableCell, TableRow } from '@/components/ui/table'
-import { useCancelRequest } from '@/hooks/useStaking'
+import { useCancelRequest, useClaimRequest } from '@/hooks/useStaking'
 import { useToast } from '@/hooks/useToast'
 import { useEffect } from 'react'
 
@@ -16,11 +16,13 @@ interface UnstakingRequest {
 interface UnstakingRequestRowProps {
   request: UnstakingRequest
   onRequestCancelled: () => void
+  onRequestClaimed: () => void
 }
 
 export function UnstakingRequestRow({
   request,
   onRequestCancelled,
+  onRequestClaimed,
 }: UnstakingRequestRowProps) {
   const { toast } = useToast()
   const {
@@ -28,6 +30,12 @@ export function UnstakingRequestRow({
     isPending: isCancelPending,
     isConfirmed: isCancelConfirmed,
   } = useCancelRequest()
+
+  const {
+    claimRequest,
+    isPending: isClaimPending,
+    isConfirmed: isClaimConfirmed,
+  } = useClaimRequest()
 
   useEffect(() => {
     if (isCancelConfirmed) {
@@ -39,6 +47,17 @@ export function UnstakingRequestRow({
       })
     }
   }, [isCancelConfirmed, onRequestCancelled, toast])
+
+  useEffect(() => {
+    if (isClaimConfirmed) {
+      onRequestClaimed()
+      toast({
+        title: 'Claim Successful',
+        description: 'YUM tokens have been claimed successfully',
+        variant: 'success',
+      })
+    }
+  }, [isClaimConfirmed, onRequestClaimed, toast])
 
   const handleCancel = async () => {
     try {
@@ -56,12 +75,20 @@ export function UnstakingRequestRow({
     }
   }
 
-  const handleClaim = () => {
-    toast({
-      title: 'Coming Soon',
-      description: 'Claim functionality will be available soon',
-      variant: 'default',
-    })
+  const handleClaim = async () => {
+    try {
+      claimRequest(request.id.toString())
+    } catch (error) {
+      console.error('Claim request failed:', error)
+      toast({
+        title: 'Claim Failed',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'An error occurred while claiming the request',
+        variant: 'error',
+      })
+    }
   }
 
   const isClaimable = request.availableAt && request.availableAt <= new Date()
@@ -100,9 +127,10 @@ export function UnstakingRequestRow({
             variant="outline"
             size="sm"
             onClick={handleClaim}
-            className="text-xs"
+            disabled={isClaimPending}
+            className="text-xs font-mono font-semibold"
           >
-            Claim
+            {isClaimPending ? 'Claiming...' : 'Claim'}
           </Button>
         )}
         <Button

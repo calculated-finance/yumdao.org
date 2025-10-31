@@ -507,7 +507,13 @@ export function YumStakingForm() {
         </Card>
       )}
 
-      <UnstakingRequestsCard />
+      <UnstakingRequestsCard
+        onBalanceRefresh={() => {
+          refetchYumBalance()
+          refetchVyumBalance()
+          refetchAllowance()
+        }}
+      />
     </div>
   )
 }
